@@ -42,9 +42,10 @@
                             <items>
                                 <MenuItem mnemonicParsing="false" onAction="#RGBToGray" text="GrayScale" />
                                 <MenuItem mnemonicParsing="false" onAction="#RGBToCMY" text="CMY" />
-                                <MenuItem mnemonicParsing="false" text="CMYK" />
-                                <MenuItem mnemonicParsing="false" text="HSI" />
-                                <MenuItem mnemonicParsing="false" text="Mirror" />
+                                <MenuItem mnemonicParsing="false" onAction="#RGBToCMYK" text="CMYK" />
+                                <MenuItem mnemonicParsing="false" onAction="#RGBToHSI" text="HSI" />
+                                <MenuItem mnemonicParsing="false" onAction="#imageMirror" text="Mirror" />
+                        <MenuItem mnemonicParsing="false" onAction="#RGBToYCBCR" text="YCBCR" />
                             </items>
                         </Menu>
                     </menus>
@@ -53,16 +54,16 @@
         </AnchorPane>
     </top>
     <left>
-        <AnchorPane style="-fx-background-color: #535353;" BorderPane.alignment="CENTER">
+        <AnchorPane prefHeight="766.0" prefWidth="75.0" style="-fx-background-color: #535353;" BorderPane.alignment="CENTER">
             <children>
-                <VBox fx:id="fileColor" prefWidth="100.0" spacing="8.0" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="2.0">
+                <VBox fx:id="fileColor" layoutY="-3.0" prefHeight="774.0" prefWidth="136.0" spacing="8.0" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="-3.0">
                     <children>
-                        <ToggleButton fx:id="penBtn" mnemonicParsing="false" prefHeight="28.0" prefWidth="0.0">
+                        <ToggleButton fx:id="penBtn" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" style="-fx-background-color: #535353;">
                             <toggleGroup>
                                 <ToggleGroup fx:id="toggleGroup" />
                             </toggleGroup>
                      <graphic>
-                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" smooth="false">
                            <image>
                               <Image url="@../drawable/pencil.png" />
                            </image>
@@ -72,7 +73,14 @@
                         </ImageView>
                      </graphic>
                         </ToggleButton>
-                        <ToggleButton fx:id="lineBtn" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" text="Line" toggleGroup="$toggleGroup" />
+                        <ToggleButton fx:id="lineBtn" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0" style="-fx-background-color: #535353;" toggleGroup="$toggleGroup">
+                     <graphic>
+                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../drawable/line.png" />
+                           </image>
+                        </ImageView>
+                     </graphic></ToggleButton>
                         <ToggleButton fx:id="rectangleBtn" layoutX="10.0" layoutY="36.0" mnemonicParsing="false" text="Rectangle" toggleGroup="$toggleGroup" />
                         <ToggleButton fx:id="circleBtn" layoutX="10.0" layoutY="61.0" mnemonicParsing="false" text="Circle" toggleGroup="$toggleGroup" />
                         <ToggleButton fx:id="ellipseBtn" layoutX="10.0" layoutY="198.0" mnemonicParsing="false" text="Ellipse" toggleGroup="$toggleGroup" />
@@ -101,9 +109,9 @@
         </AnchorPane>
     </left>
     <center>
-        <AnchorPane BorderPane.alignment="CENTER">
+        <AnchorPane prefHeight="651.0" prefWidth="831.0" BorderPane.alignment="CENTER">
             <children>
-                <Canvas fx:id="canvas" height="500.0" onMouseDragged="#setOnMouseDragged" onMousePressed="#setOnMousePressed" onMouseReleased="#setOnMouseReleased" width="500.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                <Canvas fx:id="canvas" height="500.0" layoutX="40.0" onMouseDragged="#setOnMouseDragged" onMousePressed="#setOnMousePressed" onMouseReleased="#setOnMouseReleased" width="509.0" AnchorPane.bottomAnchor="274.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="597.0" AnchorPane.topAnchor="0.0" />
             </children>
         </AnchorPane>
     </center>

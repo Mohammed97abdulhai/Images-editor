@@ -10,6 +10,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
+import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -270,8 +271,8 @@ public class PhotoEdit implements Initializable {
         FileChooser saveFile = new FileChooser();
 
         //Set extension filter
-        FileChooser.ExtensionFilter extFilter =
-                new FileChooser.ExtensionFilter("png files (*.png)", "*.png");
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("png files (*.png)", "*.png");
+        FileChooser.ExtensionFilter JPG = new FileChooser.ExtensionFilter("Image files (*.jpg)", "*.jpg", "*.JPG", "*.JPEG", "*.jpeg");
         saveFile.getExtensionFilters().add(extFilter);
 
         saveFile.setTitle("Save File");
@@ -290,93 +291,209 @@ public class PhotoEdit implements Initializable {
     }
 
     //Filter
-    public boolean isRGB = true;
-
     public void RGBToGray(ActionEvent e) {
         WritableImage writableImage = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
         canvas.snapshot(null, writableImage);
-        gc.drawImage(RGBToGrayConvert(writableImage, isRGB), 0, 0, canvas.getWidth(), canvas.getHeight());
-        isRGB = !isRGB;
+        gc.drawImage(RGBToGrayConvert(writableImage), 0, 0, canvas.getWidth(), canvas.getHeight());
     }
 
     public void RGBToCMY(ActionEvent e) {
         WritableImage writableImage = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
         canvas.snapshot(null, writableImage);
-        gc.drawImage(RGBToCMY(writableImage, isRGB), 0, 0, canvas.getWidth(), canvas.getHeight());
-        isRGB = !isRGB;
+        gc.drawImage(RGBToCMYConvert(writableImage), 0, 0, canvas.getWidth(), canvas.getHeight());
     }
 
-    public static int g = 0;
+    public void RGBToCMYK(ActionEvent e) {
+        WritableImage writableImage = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
+        canvas.snapshot(null, writableImage);
+        gc.drawImage(RGBToCMYKConvert(writableImage), 0, 0, canvas.getWidth(), canvas.getHeight());
+    }
+
+    public void RGBToHSI(ActionEvent e) {
+        WritableImage writableImage = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
+        canvas.snapshot(null, writableImage);
+        gc.drawImage(HSIToCMYKConvert(writableImage), 0, 0, canvas.getWidth(), canvas.getHeight());
+    }
+
+    public void RGBToYCBCR(ActionEvent e) {
+        WritableImage writableImage = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
+        canvas.snapshot(null, writableImage);
+        gc.drawImage(RGBToYCBCRConvert(writableImage), 0, 0, canvas.getWidth(), canvas.getHeight());
+    }
+
+    public void imageMirror(ActionEvent e) {
+        WritableImage writableImage = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
+        canvas.snapshot(null, writableImage);
+        gc.drawImage(Mirror(writableImage), 0, 0, canvas.getWidth(), canvas.getHeight());
+    }
 
     //Filter Function
-    public Image RGBToGrayConvert(WritableImage writableImage, boolean isRGB) {
+    public Image RGBToGrayConvert(WritableImage writableImage) {
         Image convertedImage = null;
-        if (isRGB) {
-            System.out.println("Fuck Is RGB");
-            BufferedImage bufferedImage = SwingFXUtils.fromFXImage(writableImage, null);
-            int width = bufferedImage.getWidth();
-            int height = bufferedImage.getHeight();
 
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    int rgb = bufferedImage.getRGB(x, y);
-                    g = rgb;
-                    int red = (rgb >> 16) & 0xff;
-                    int green = (rgb >> 8) & 0xff;
-                    int blue = rgb & 0xff;
-                    int alpha = (rgb >> 24) & 0xff;
+        BufferedImage bufferedImage = SwingFXUtils.fromFXImage(writableImage, null);
+        int width = bufferedImage.getWidth();
+        int height = bufferedImage.getHeight();
 
-                    //calculate average
-                    int gray = (red + green + blue) / 3;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int rgb = bufferedImage.getRGB(x, y);
+                int red = (rgb >> 16) & 0xff;
+                int green = (rgb >> 8) & 0xff;
+                int blue = rgb & 0xff;
+                int alpha = (rgb >> 24) & 0xff;
 
-                    //replace RGB value with avg
-                    rgb = (alpha << 24) | (gray << 16) | (gray << 8) | gray;
-                    bufferedImage.setRGB(x, y, rgb);
-                }
+                //calculate average
+                int gray = (red + green + blue) / 3;
+
+                //replace RGB value with avg
+                rgb = (alpha << 24) | (gray << 16) | (gray << 8) | gray;
+                bufferedImage.setRGB(x, y, rgb);
             }
             convertedImage = SwingFXUtils.toFXImage(bufferedImage, null);
-        } else {
-            System.out.println("Fuck ! Is RGB");
-            BufferedImage bufferedImage = SwingFXUtils.fromFXImage(writableImage, null);
-            convertedImage = SwingFXUtils.toFXImage(bufferedImage, null);
+        }
+
+        return convertedImage;
+    }
+
+    public Image RGBToCMYConvert(WritableImage writableImage) {
+        int imageHeight = (int) writableImage.getHeight();
+        int imageWidth = (int) writableImage.getWidth();
+        PixelReader pixelReader = writableImage.getPixelReader();
+        WritableImage convertedImage = new WritableImage(imageWidth, imageHeight);
+        PixelWriter pixelWriter = convertedImage.getPixelWriter();
+        for (int i = 0; i < imageHeight; i++) {
+            for (int j = 0; j < imageWidth; j++) {
+                Color color = pixelReader.getColor(j, i);
+                double Cyan = 1 - color.getRed();
+                double Magenta = 1 - color.getGreen();
+                double Yellow = 1 - color.getBlue();
+                Color newColor = new Color(Cyan, Magenta, Yellow, 1);
+               pixelWriter.setColor(j, i, newColor);
+            }
         }
         return convertedImage;
     }
 
-    public Image RGBToCMY(WritableImage writableImage, boolean isRGB) {
-        Image convertedImage = null;
-        if (isRGB) {
-            BufferedImage bufferedImage = SwingFXUtils.fromFXImage(writableImage, null);
-            int width = bufferedImage.getWidth();
-            int height = bufferedImage.getHeight();
+    public Image RGBToCMYKConvert(WritableImage writableImage) {
+        int imageHeight = (int) writableImage.getHeight();
+        int imageWidth = (int) writableImage.getWidth();
+        PixelReader pixelReader = writableImage.getPixelReader();
+        WritableImage convertedImage = new WritableImage(imageWidth, imageHeight);
+        PixelWriter pixelWriter = convertedImage.getPixelWriter();
+        for (int i = 0; i < imageHeight; i++) {
+            for (int j = 0; j < imageWidth; j++) {
 
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    int rgb = bufferedImage.getRGB(x, y);
+                Color color = pixelReader.getColor(j, i);
+                double Cyan = 1 - color.getRed();
+                double Magenta = 1 - color.getGreen();
+                double Yellow = 1 - color.getBlue();
 
-                    int red = (rgb >> 16) & 0xff;
-                    int green = (rgb >> 8) & 0xff;
-                    int blue = rgb & 0xff;
-                    int alpha = (rgb >> 24) & 0xff;
-
-                    //Converting from RGB to CMY:
-                    int Cyan = green + blue;
-                    int Magenta = red + blue;
-                    int Yellow = red + green;
-
-                    //replace RGB value with CMY
-                    rgb = (alpha << 24) | (Cyan << 16) | (Magenta << 8) | Yellow;
-
-                    bufferedImage.setRGB(x, y, rgb);
-                }
+                double k = Math.min(Cyan, Math.min(Yellow, Magenta));
+                Color newColor = new Color(Math.max(Cyan - k, 0), Math.max(Magenta - k, 0), Math.max(Yellow - k, 0), 1);
+                pixelWriter.setColor(j, i, newColor);
             }
-            convertedImage = SwingFXUtils.toFXImage(bufferedImage, null);
-        } else {
-
         }
         return convertedImage;
     }
 
+    public Image HSIToCMYKConvert(WritableImage writableImage) {
+        int imageHeight = (int) writableImage.getHeight();
+        int imageWidth = (int) writableImage.getWidth();
+        PixelReader pixelReader = writableImage.getPixelReader();
+        WritableImage convertedImage = new WritableImage(imageWidth, imageHeight);
+        PixelWriter pixelWriter = convertedImage.getPixelWriter();
+        for (int i = 0; i < imageHeight; i++) {
+            for (int j = 0; j < imageWidth; j++) {
+
+                Color color = pixelReader.getColor(j, i);
+                double r = color.getRed();
+                double g = color.getGreen();
+                double b = color.getBlue();
+
+                double teta = Math.acos((0.5 * ((r - g) + (r - b))) / (Math.pow(r - g, 2) + ((r - b) * Math.pow(g - b, 0.5))));
+                double h = 0;
+                if (b > g)
+                    h = 360 - teta;
+                double s = 1 - ((3 / (r + g + b)) * Math.min(r, Math.min(g, b)));
+                double I = 1 / 3 * (r + g + b);
+                Color newColor = new Color(h, s, I, 1);
+                pixelWriter.setColor(j, i, newColor);
+            }
+        }
+        return convertedImage;
+    }
+
+    public Image RGBToYCBCRConvert(WritableImage writableImage) {
+        int imageHeight = (int) writableImage.getHeight();
+        int imageWidth = (int) writableImage.getWidth();
+        PixelReader pixelReader = writableImage.getPixelReader();
+        WritableImage convertedImage = new WritableImage(imageWidth, imageHeight);
+        PixelWriter pixelWriter = convertedImage.getPixelWriter();
+        for (int i = 0; i < imageHeight; i++) {
+            for (int j = 0; j < imageWidth; j++) {
+
+                Color color = pixelReader.getColor(j, i);
+                double r = color.getRed();
+                double g = color.getGreen();
+                double b = color.getBlue();
+                float y, cb, cr;
+
+                y = (float) (0.299 * r + 0.587 * g + 0.114 * b);
+                cb = (float) (-0.169 * r - 0.331 * g + 0.500 * b);
+                cr = (float) (0.500 * r - 0.419 * g - 0.081 * b);
+
+                if (y < 0) {
+                    y = 0;
+                } else if (y > 1) {
+                    y = 1;
+                }
+
+                if (cb < 0) {
+                    cb = 0;
+                } else if (cb > 1) {
+                    cb = 1;
+                }
+
+                if (cr < 0) {
+                    cr = 0;
+                } else if (cr > 1) {
+                    cr = 1;
+                }
+
+                Color newColor = new Color(y, cb, cr, 1);
+                Color rr = Color.TRANSPARENT;
+                Color mm = pixelReader.getColor(j, i);
+
+                if (mm.equals(rr))
+                    pixelWriter.setColor(j, i, rr);
+                else
+                    pixelWriter.setColor(j, i, newColor);
+            }
+        }
+        return convertedImage;
+    }
+
+    public Image Mirror(WritableImage writableImage){
+        BufferedImage bufferedImage = SwingFXUtils.fromFXImage(writableImage, null);
+        int width = bufferedImage.getWidth();
+        int height = bufferedImage.getHeight();
+
+        BufferedImage mirrorImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+        Image convertedImage = null;
+
+        // Create mirror image pixel by pixel
+        for (int y = 0; y < height; y++) {
+            for (int lx = 0, rx = width - 1; lx < width; lx++, rx--) {
+                int p = bufferedImage.getRGB(lx, y);
+                // set mirror image pixel value
+                mirrorImg.setRGB(rx, y, p);
+            }
+        }
+        convertedImage = SwingFXUtils.toFXImage(mirrorImg, null);
+        return convertedImage;
+    }
 
     //Helper Function
     public Color GetColor(Point2D mousePosition) {

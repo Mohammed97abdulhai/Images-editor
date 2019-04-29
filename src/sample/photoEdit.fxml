@@ -42,9 +42,10 @@
                             <items>
                                 <MenuItem mnemonicParsing="false" onAction="#RGBToGray" text="GrayScale" />
                                 <MenuItem mnemonicParsing="false" onAction="#RGBToCMY" text="CMY" />
-                                <MenuItem mnemonicParsing="false" text="CMYK" />
-                                <MenuItem mnemonicParsing="false" text="HSI" />
-                                <MenuItem mnemonicParsing="false" text="Mirror" />
+                                <MenuItem mnemonicParsing="false" onAction="#RGBToCMYK" text="CMYK" />
+                                <MenuItem mnemonicParsing="false" onAction="#RGBToHSI" text="HSI" />
+                                <MenuItem mnemonicParsing="false" onAction="#imageMirror" text="Mirror" />
+                        <MenuItem mnemonicParsing="false" onAction="#RGBToYCBCR" text="YCBCR" />
                             </items>
                         </Menu>
                     </menus>
